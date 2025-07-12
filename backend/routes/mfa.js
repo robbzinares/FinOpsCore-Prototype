@@ -1,4 +1,3 @@
-// backend/routes/mfa.js
 const express = require('express');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
