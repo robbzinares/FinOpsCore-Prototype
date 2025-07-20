@@ -32,4 +32,20 @@ router.post('/orders', async (req, res) => {
   }
 });
 
+// DELETE an order
+router.delete('/orders/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await db.query('DELETE FROM orders WHERE id = $1', [id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+    res.json({ success: true, message: 'Order deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Failed to delete order' });
+  }
+});
+
+
 module.exports = router;

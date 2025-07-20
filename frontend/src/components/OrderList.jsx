@@ -9,14 +9,38 @@ const statusColors = {
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState('All');
+  const [message, setMessage] = useState('');
 
-  useEffect(() => {
+  const fetchOrders = () => {
     fetch('http://localhost:5500/api/orders')
       .then(res => res.json())
       .then(data => {
         if (data.success) setOrders(data.data);
       });
+  };
+
+  useEffect(() => {
+    fetchOrders();
   }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this order?')) return;
+
+    try {
+      const res = await fetch(`http://localhost:5500/api/orders/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessage('Order deleted successfully.');
+        fetchOrders();
+      } else {
+        setMessage('Failed to delete order.');
+      }
+    } catch (err) {
+      setMessage('Error deleting order.');
+    }
+  };
 
   const filteredOrders = filter === 'All' ? orders : orders.filter(o => o.status === filter);
 
@@ -31,6 +55,8 @@ const OrderList = () => {
         <option>Delayed</option>
       </select>
 
+      {message && <p>{message}</p>}
+
       <table border="1" cellPadding="10" style={{ width: '100%' }}>
         <thead>
           <tr>
@@ -41,6 +67,7 @@ const OrderList = () => {
             <th>Temperature (°C)</th>
             <th>Humidity (%)</th>
             <th>Amount</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -53,6 +80,9 @@ const OrderList = () => {
               <td>{order.temperature !== null ? `${order.temperature}°C` : '—'}</td>
               <td>{order.humidity !== null ? `${order.humidity}%` : '—'}</td>
               <td>${Number(order.amount).toFixed(2)}</td>
+              <td>
+                <button onClick={() => handleDelete(order.id)}>Delete</button>
+              </td>
             </tr>
           ))}
         </tbody>

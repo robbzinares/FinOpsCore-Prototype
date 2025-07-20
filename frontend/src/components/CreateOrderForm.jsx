@@ -12,6 +12,13 @@ const CreateOrderForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount < 0 || parsedAmount > 1000000) {
+      setMessage('Amount must be a number between 0 and 1,000,000.');
+      return;
+    }
+
     const order = {
       tracking_id: trackingId,
       client,
@@ -19,7 +26,7 @@ const CreateOrderForm = () => {
       status,
       temperature: parseFloat(temperature),
       humidity: parseFloat(humidity),
-      amount: parseFloat(amount),
+      amount: parsedAmount,
     };
 
     try {
@@ -60,7 +67,15 @@ const CreateOrderForm = () => {
       </select>
       <input type="number" placeholder="Temperature (°C)" value={temperature} onChange={(e) => setTemperature(e.target.value)} />
       <input type="number" placeholder="Humidity (%)" value={humidity} onChange={(e) => setHumidity(e.target.value)} />
-      <input type="number" placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} required />
+      <input
+        type="number"
+        placeholder="Amount"
+        value={amount}
+        min={0}
+        max={1000000}
+        onChange={(e) => setAmount(e.target.value)}
+        required
+      />
       <button type="submit">Create Order</button>
       {message && <p>{message}</p>}
     </form>
